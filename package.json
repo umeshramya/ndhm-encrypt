@@ -1,0 +1,19 @@
+{
+  "name": "ndhm-encrypt",
+  "version": "1.0.0",
+  "description": "This is for encryption ndhm data",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/umeshramya/ndhm-encrypt.git"
+  },
+  "author": "Dr umesh R abilagi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/umeshramya/ndhm-encrypt/issues"
+  },
+  "homepage": "https://github.com/umeshramya/ndhm-encrypt#readme"
+}
