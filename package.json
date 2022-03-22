@@ -4,7 +4,7 @@
   "description": "This is for encryption ndhm data",
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsc && yalc publish && cd test &&  yalc add ndhm-hrp && yalc update ndhm-hrp && npm run dev"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/umeshramya/ndhm-encrypt/issues"
   },
-  "homepage": "https://github.com/umeshramya/ndhm-encrypt#readme"
+  "homepage": "https://github.com/umeshramya/ndhm-encrypt#readme",
+  "files": [
+    "lib/**/*"
+  ]
 }
