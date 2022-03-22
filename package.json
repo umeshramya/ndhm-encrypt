@@ -18,5 +18,12 @@
   "homepage": "https://github.com/umeshramya/ndhm-encrypt#readme",
   "files": [
     "lib/**/*"
-  ]
+  ],
+  "dependencies": {
+    "aes256": "^1.1.0",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.22"
+  }
 }
