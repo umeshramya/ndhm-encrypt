@@ -4,7 +4,7 @@ export class Encrypt {
   /**
    * ECDH curve sent from HIUI
    */
-  private curve!: string;
+  private curve: string = "curve25519";
   /**
    * public key of HIU
    */
@@ -25,11 +25,14 @@ export class Encrypt {
   /**
    * Random or nounce of HIP
    */
-  private hipNounce!: string;
+  private hipNounce!: any;
   /**
    * geberated from dhpkU and dhskP
    */
-  private sessionKey!: string;
+  private sharedKey!: string;
+
+  private sender!: crypto.ECDH;
+
   constructor(options: {
     /**
      * curve mentoned from HIU
@@ -54,17 +57,33 @@ export class Encrypt {
    * @param curve sent from HIU
    */
   async generateHIPKeys(curve: string) {
-    const ecdh = crypto.createECDH(curve);
-    ecdh.generateKeys();
-    this.dhskP = ecdh.getPrivateKey().toString("base64");
-    this.dhpkP = ecdh.getPublicKey().toString("base64");
+    this.sender = crypto.createECDH(curve);
+    this.sender.generateKeys();
+    this.dhskP = this.sender.getPrivateKey().toString("base64");
+    this.dhpkP = this.sender.getPublicKey().toString("base64");
   }
   /**
    * generate session key
    */
-  private getSessionKey() {
+  private getSharedKey() {
     const _dhpkU = this.dhpkU;
     const _dhskP = this.dhskP;
-    this.sessionKey=crypto.
+    // // Generating the shared key using the parameters available
+    this.sharedKey = this.sender.computeSecret(this.dhpkU, "base64", "hex");
+  }
+
+  public encrypt(message: string) {
+    const cipler = crypto.createCipheriv(
+      "aes-256-gcm",
+      Buffer.from(this.sharedKey, "hex"),
+      this.hiuNounce
+    );
+    let encrypt = cipler.update(message, "utf-8", "hex");
+    encrypt = cipler.final("hex");
+    const authTag = cipler.getAuthTag().toString("hex");
+    const ret = {
+      encrypt: encrypt,
+      authTag: authTag,
+    };
   }
 }
