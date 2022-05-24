@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "ndhm-encrypt": {
+      "signature": "80742fad0098748ab7f990a62ee4c1f0",
+      "file": true
+    }
+  }
+}

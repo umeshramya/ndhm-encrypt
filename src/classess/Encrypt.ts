@@ -1,10 +1,11 @@
 import crypto from "crypto";
+const EC = require("elliptic").ec;
 
 export class Encrypt {
   /**
    * ECDH curve sent from HIUI
    */
-  private curve: string = "curve25519";
+  private readonly curve: string = "curve25519";
   /**
    * public key of HIU
    */
@@ -35,10 +36,6 @@ export class Encrypt {
 
   constructor(options: {
     /**
-     * curve mentoned from HIU
-     */
-    curve: string;
-    /**
      * public key of HIU
      */
     dhpkU: string;
@@ -47,35 +44,29 @@ export class Encrypt {
      */
     hiuNounce: string;
   }) {
-    this.curve = options.curve;
     this.hiuNounce = options.hiuNounce;
     this.dhpkU = options.dhpkU;
   }
 
-  /**
-   *
-   * @param curve sent from HIU
-   */
-  async generateHIPKeys(curve: string) {
-    this.sender = crypto.createECDH(curve);
-    this.sender.generateKeys();
-    this.dhskP = this.sender.getPrivateKey().toString("base64");
-    this.dhpkP = this.sender.getPublicKey().toString("base64");
-  }
-  /**
-   * generate session key
-   */
-  private getSharedKey() {
-    const _dhpkU = this.dhpkU;
-    const _dhskP = this.dhskP;
-    // // Generating the shared key using the parameters available
-    this.sharedKey = this.sender.computeSecret(this.dhpkU, "base64", "hex");
+  private generateHIPKeys() {
+    const ec = new EC(this.curve);
+    const keys = ec.genKeyPair();
+    this.sharedKey = keys.derive(keys.getPublic());
+    console.log(this.sharedKey.toString());
+    // this.sender.generateKeys();
+    this.dhskP = keys.getPrivate().toString();
+    this.dhpkP = keys.getPublic().toString();
+    this.sender.setPrivateKey(this.dhpkP, "base64");
+    // this.sender.computeSecret(this.dhpkU, "base64", "hex");
   }
 
-  public encrypt(message: string) {
+  public async encrypt(message: string) {
+    this.generateHIPKeys();
+    return;
     const cipler = crypto.createCipheriv(
       "aes-256-gcm",
       Buffer.from(this.sharedKey, "hex"),
+      // this.sharedKey,
       this.hiuNounce
     );
     let encrypt = cipler.update(message, "utf-8", "hex");
@@ -84,6 +75,7 @@ export class Encrypt {
     const ret = {
       encrypt: encrypt,
       authTag: authTag,
+      sharedKey: this.sharedKey,
     };
   }
 }

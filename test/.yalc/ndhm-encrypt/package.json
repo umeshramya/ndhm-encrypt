@@ -24,7 +24,5 @@
     "crypto": "^1.0.1",
     "elliptic": "^6.5.4"
   },
-  "devDependencies": {
-    "@types/node": "^17.0.22"
-  }
+  "yalcSig": "80742fad0098748ab7f990a62ee4c1f0"
 }
