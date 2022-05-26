@@ -30,20 +30,21 @@ namespace app
     {
         private readonly string CURVE = "curve25519";
         private readonly string ALGORITHM = "ECDH";
-        private readonly string StrToPerformActionOn = "SomeValue";
-        public void SetUpDemo()
+        public string StrToPerformActionOn = "SomeValue";
+
+        public void Encrypt(string receiverPublicKey, string  randomKeyReceiver)
         {
             // Generating key pairs 
-            var receiverKeyPair = GenerateKey();
-            var receiverPublicKey = GetPublicKey(receiverKeyPair);
-            var receiverPrivateKey = GetPrivateKey(receiverKeyPair);
+            // var receiverKeyPair = GenerateKey();
+            // var receiverPublicKey = GetPublicKey(receiverKeyPair);
+            // var receiverPrivateKey = GetPrivateKey(receiverKeyPair);
             var senderKeyPair = GenerateKey();
             var senderPublicKey = GetPublicKey(senderKeyPair);
             var senderPrivateKey = GetPrivateKey(senderKeyPair);
 
             // Generating random key 
             var randomKeySender = GenerateRandomKey();
-            var randomKeyReceiver = GenerateRandomKey();
+            // var randomKeyReceiver = GenerateRandomKey();
             
             // Generating XOR array for getting the salt and IV used for encryption 
             var xorOfRandoms = XorOfRandom(randomKeySender, randomKeyReceiver).ToArray();
@@ -58,12 +59,12 @@ namespace app
             Console.WriteLine("----------------------------------->");
             
             // Decrypting the encrypted value
-            var decryptedString = DecryptString(encryptString,
-                xorOfRandoms,
-                receiverPrivateKey,
-                senderPublicKey);
+            // var decryptedString = DecryptString(encryptString,
+            //     xorOfRandoms,
+            //     receiverPrivateKey,
+            //     senderPublicKey);
             
-            Console.WriteLine("DECRYPTED STRING: " + decryptedString);
+            // Console.WriteLine("DECRYPTED STRING: " + decryptedString);
         }
 
         // Method for encrypting the string
