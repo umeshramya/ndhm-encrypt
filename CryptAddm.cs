@@ -7,7 +7,7 @@
  1) BouncyCastle
  2) C# dotnet 
 */
-namespace In.ProjectEKA.HipService.EncryptionBit
+namespace app
 {
     using System;
     using System.Collections.Generic;
@@ -26,7 +26,7 @@ namespace In.ProjectEKA.HipService.EncryptionBit
     using Encoder = Org.BouncyCastle.Utilities.Encoders;
 
 
-    public class EncrytorDemo
+    public class CryptAddm
     {
         private readonly string CURVE = "curve25519";
         private readonly string ALGORITHM = "ECDH";
@@ -44,25 +44,25 @@ namespace In.ProjectEKA.HipService.EncryptionBit
             // Generating random key 
             var randomKeySender = GenerateRandomKey();
             var randomKeyReceiver = GenerateRandomKey();
-
+            
             // Generating XOR array for getting the salt and IV used for encryption 
             var xorOfRandoms = XorOfRandom(randomKeySender, randomKeyReceiver).ToArray();
 
             // Encrypting the string
-            var encryptString = EncryptString(StrToPerformActionOn,
+            var encryptString = EncryptString(StrToPerformActionOn, 
                 xorOfRandoms,
                 senderPrivateKey,
                 receiverPublicKey);
-
+            
             Console.WriteLine("ENCRYPTED STRING: " + encryptString);
             Console.WriteLine("----------------------------------->");
-
+            
             // Decrypting the encrypted value
             var decryptedString = DecryptString(encryptString,
                 xorOfRandoms,
                 receiverPrivateKey,
                 senderPublicKey);
-
+            
             Console.WriteLine("DECRYPTED STRING: " + decryptedString);
         }
 
@@ -70,7 +70,7 @@ namespace In.ProjectEKA.HipService.EncryptionBit
         private string EncryptString(string stringToEncrypt,
                                     byte[] xorOfRandoms,
                                     string senderPrivateKey,
-                                    string receiverPublicKey)
+                                    string  receiverPublicKey)
         {
             // Generating the shared key using the parameters available
             var sharedKey = GetBase64FromByte(GetSharedSecretValue(senderPrivateKey, receiverPublicKey));
@@ -115,7 +115,7 @@ namespace In.ProjectEKA.HipService.EncryptionBit
             // Generating the shared key using the parameters available
             var sharedKey = GetBase64FromByte(GetSharedSecretValue(receiverPrivateKey, senderPublicKey));
             Console.WriteLine("DHE SHARED SECRET: " + sharedKey);
-
+            
             // Generate the salt, IV and aes key
             var salt = xorOfRandoms.Take(20);
             var iv = xorOfRandoms.TakeLast(12);
@@ -124,8 +124,7 @@ namespace In.ProjectEKA.HipService.EncryptionBit
 
             // Decrypting the data
             String decryptedData = "";
-            try
-            {
+            try {
                 var dataBytes = GetByteFromBase64(stringToDecrypt).ToArray();
                 var cipher = new GcmBlockCipher(new AesEngine());
                 var parameters =
@@ -136,12 +135,10 @@ namespace In.ProjectEKA.HipService.EncryptionBit
                     (dataBytes, 0, dataBytes.Length, plainBytes, 0);
                 cipher.DoFinal(plainBytes, retLen);
                 decryptedData = Encoding.UTF8.GetString(plainBytes);
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Console.Write(ex);
             }
-
+            
             // Returning decrypted data
             return decryptedData;
         }
@@ -151,13 +148,13 @@ namespace In.ProjectEKA.HipService.EncryptionBit
         {
             var ecP = CustomNamedCurves.GetByName(CURVE);
             var ecSpec = new ECDomainParameters(ecP.Curve, ecP.G, ecP.N, ecP.H, ecP.GetSeed());
-            var generator = (ECKeyPairGenerator)GeneratorUtilities.GetKeyPairGenerator(ALGORITHM);
+            var generator = (ECKeyPairGenerator) GeneratorUtilities.GetKeyPairGenerator(ALGORITHM);
             generator.Init(new ECKeyGenerationParameters(ecSpec, new SecureRandom()));
             return generator.GenerateKeyPair();
         }
-
+        
         // Generating shared key
-        private byte[] GetSharedSecretValue(string privKey, string pubKey)
+        private byte[]  GetSharedSecretValue(string privKey, string pubKey)
         {
             var privateKey = GetPrivateKeyFrom(privKey);
             var publicKey = GetPublicKeyFrom(pubKey);
@@ -166,7 +163,7 @@ namespace In.ProjectEKA.HipService.EncryptionBit
             var result = agreement.CalculateAgreement(publicKey);
             return result.ToByteArrayUnsigned();
         }
-
+        
         // XOR of teo random string (sender and receiver)
         private static IEnumerable<byte> XorOfRandom(string randomKeySender, string randomKeyReceiver)
         {
@@ -175,12 +172,12 @@ namespace In.ProjectEKA.HipService.EncryptionBit
             var sb = new byte[randomKeyReceiverBytes.Length];
             for (var i = 0; i < randomKeySenderBytes.Length; i++)
             {
-                sb[i] = (byte)(randomKeySenderBytes[i] ^ randomKeyReceiverBytes[i % randomKeyReceiverBytes.Length]);
+                sb[i] = (byte) (randomKeySenderBytes[i] ^ randomKeyReceiverBytes[i % randomKeyReceiverBytes.Length]);
             }
-
+        
             return sb;
         }
-
+        
         // Generate 32 byte random Key 
         private static string GenerateRandomKey()
         {
@@ -189,7 +186,7 @@ namespace In.ProjectEKA.HipService.EncryptionBit
             rngCryptoServiceProvider.GetBytes(randomBytes);
             return GetBase64FromByte(randomBytes);
         }
-
+        
         // Method for getting Aes key using HKDF
         private static IEnumerable<byte> GenerateAesKey(string sharedKey, IEnumerable<byte> salt)
         {
@@ -202,19 +199,19 @@ namespace In.ProjectEKA.HipService.EncryptionBit
             hkdfBytesGenerator.GenerateBytes(aesKey, 0, 32);
             return aesKey;
         }
-
+        
         // Get base64 from byte array.
         private static string GetBase64FromByte(IEnumerable<byte> value)
         {
-            return Encoder.Base64.ToBase64String((byte[])value);
+            return Encoder.Base64.ToBase64String((byte[]) value);
         }
-
+        
         //Get byte array from string.
         private static IEnumerable<byte> GetByteFromBase64(string value)
         {
             return Encoder.Base64.Decode(value);
         }
-
+        
         // Converting Public key to string
         public static string GetPublicKey(AsymmetricCipherKeyPair keyPair)
         {
@@ -233,13 +230,13 @@ namespace In.ProjectEKA.HipService.EncryptionBit
         // Converting string to privateKey
         public AsymmetricKeyParameter GetPrivateKeyFrom(string privateKey)
         {
-            return PrivateKeyFactory.CreateKey((byte[])GetByteFromBase64(privateKey));
+            return PrivateKeyFactory.CreateKey((byte[]) GetByteFromBase64(privateKey));
         }
 
         // Converting string to publicKey
         public AsymmetricKeyParameter GetPublicKeyFrom(string publicKey)
         {
-            return PublicKeyFactory.CreateKey((byte[])GetByteFromBase64(publicKey));
+            return PublicKeyFactory.CreateKey((byte[]) GetByteFromBase64(publicKey));
         }
     }
 }
